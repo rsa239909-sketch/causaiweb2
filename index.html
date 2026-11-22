@@ -1,0 +1,1311 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sổ Tay Chữa Lỗi Toán & Lý</title>
+  <style>
+    :root {
+      --bg: #f6f8fc;
+      --surface: #ffffff;
+      --surface-2: #f1f5f9;
+      --text: #0f172a;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --math: #2563eb;
+      --math-soft: #eff6ff;
+      --physics: #d97706;
+      --physics-soft: #fffbeb;
+      --success: #16a34a;
+      --danger: #dc2626;
+      --radius: 16px;
+      --shadow: 0 6px 24px rgba(15, 23, 42, 0.05);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    button, input, select, textarea {
+      font: inherit;
+      color: inherit;
+    }
+
+    button { cursor: pointer; }
+
+    .app {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 16px 14px 64px;
+    }
+
+    /* Top bar */
+    .topbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      box-shadow: var(--shadow);
+      margin-bottom: 14px;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 1.15rem;
+      font-weight: 750;
+      letter-spacing: -0.01em;
+    }
+
+    .brand p {
+      margin: 2px 0 0;
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+
+    .actions-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .btn {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      padding: 8px 12px;
+      border-radius: 10px;
+      font-size: 0.86rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: 0.15s ease;
+    }
+
+    .btn:hover { background: var(--surface-2); }
+
+    .btn-primary {
+      background: var(--text);
+      color: #fff;
+      border-color: var(--text);
+    }
+
+    .btn-primary:hover { opacity: 0.92; background: var(--text); }
+
+    .btn-danger {
+      color: var(--danger);
+      border-color: #fecaca;
+      background: #fef2f2;
+    }
+
+    .btn-danger:hover { background: #fee2e2; }
+
+    .btn-done {
+      background: #dcfce7;
+      color: #166534;
+      border-color: #86efac;
+    }
+
+    .btn-done:hover { background: #bbf7d0; }
+
+    /* Status strip */
+    .status-strip {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 0.8rem;
+      color: var(--muted);
+      padding: 0 4px 12px;
+    }
+
+    /* Breadcrumb / Nav */
+    .nav-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 14px;
+      min-height: 36px;
+    }
+
+    .breadcrumb {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .crumb-link {
+      border: none;
+      background: transparent;
+      padding: 4px 8px;
+      border-radius: 8px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .crumb-link:hover { background: var(--surface-2); color: var(--text); }
+
+    .crumb-current { color: var(--text); padding: 4px 6px; }
+
+    /* Subject cards */
+    .subjects-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    @media (max-width: 640px) {
+      .subjects-grid { grid-template-columns: 1fr; }
+    }
+
+    .subject-card {
+      text-align: left;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+      box-shadow: var(--shadow);
+      transition: transform 0.14s ease, border-color 0.14s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .subject-card:hover { transform: translateY(-2px); }
+
+    .subject-card.math { border-top: 4px solid var(--math); }
+    .subject-card.physics { border-top: 4px solid var(--physics); }
+
+    .subject-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .subject-title {
+      font-size: 1.15rem;
+      font-weight: 750;
+      margin: 0;
+    }
+
+    .badge {
+      font-size: 0.82rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 999px;
+    }
+
+    .math .badge { background: var(--math-soft); color: var(--math); }
+    .physics .badge { background: var(--physics-soft); color: var(--physics); }
+
+    .progress-track {
+      height: 8px;
+      background: var(--surface-2);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      border-radius: 999px;
+      transition: width 0.25s ease;
+    }
+
+    .math .progress-fill { background: var(--math); }
+    .physics .progress-fill { background: var(--physics); }
+
+    .subject-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+
+    /* Folder list */
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      box-shadow: var(--shadow);
+      margin-bottom: 14px;
+    }
+
+    .folder-create {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .input, .select, .textarea {
+      width: 100%;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      border-radius: 10px;
+      padding: 9px 12px;
+      font-size: 0.9rem;
+    }
+
+    .input:focus, .select:focus, .textarea:focus {
+      outline: 2px solid #93c5fd;
+      border-color: #60a5fa;
+    }
+
+    .folders-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 10px;
+    }
+
+    .folder-card {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 13px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      transition: 0.14s ease;
+    }
+
+    .folder-card:hover { background: var(--surface-2); }
+
+    .folder-open {
+      flex: 1;
+      text-align: left;
+      background: transparent;
+      border: none;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .folder-name { font-weight: 700; font-size: 0.95rem; }
+    .folder-count { font-size: 0.78rem; color: var(--muted); }
+
+    /* Question list */
+    .filter-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .filter-bar .select, .filter-bar .input {
+      width: auto;
+      min-width: 150px;
+      flex: 1;
+    }
+
+    .question-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 15px;
+      box-shadow: var(--shadow);
+      margin-bottom: 12px;
+    }
+
+    .q-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .q-title {
+      margin: 0;
+      font-size: 1rem;
+      font-weight: 750;
+    }
+
+    .q-type {
+      font-size: 0.76rem;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 999px;
+      background: var(--surface-2);
+      color: var(--text);
+      white-space: nowrap;
+    }
+
+    .q-note {
+      font-size: 0.88rem;
+      margin: 6px 0;
+      white-space: pre-line;
+    }
+
+    .q-label { font-weight: 700; color: var(--muted); }
+
+    .q-images {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 10px;
+      margin: 10px 0 12px;
+    }
+
+    .thumb-box {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      background: var(--surface-2);
+    }
+
+    .thumb-box img {
+      display: block;
+      width: 100%;
+      max-height: 220px;
+      object-fit: cover;
+      cursor: zoom-in;
+    }
+
+    .thumb-cap {
+      font-size: 0.74rem;
+      color: var(--muted);
+      padding: 4px 8px;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+    }
+
+    .q-foot {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding-top: 8px;
+      border-top: 1px dashed var(--border);
+    }
+
+    .empty {
+      text-align: center;
+      padding: 34px 16px;
+      color: var(--muted);
+      background: var(--surface);
+      border: 1px dashed var(--border);
+      border-radius: var(--radius);
+    }
+
+    /* Modal */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 14px;
+      z-index: 50;
+    }
+
+    .modal-backdrop.open { display: flex; }
+
+    .modal {
+      width: 100%;
+      max-width: 560px;
+      max-height: 92vh;
+      overflow-y: auto;
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 18px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+    }
+
+    .modal-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .modal-head h2 { margin: 0; font-size: 1.08rem; }
+
+    .form-grid { display: grid; gap: 11px; }
+
+    .form-row-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    @media (max-width: 520px) {
+      .form-row-2 { grid-template-columns: 1fr; }
+    }
+
+    .field label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 650;
+      margin-bottom: 4px;
+    }
+
+    .photo-box {
+      border: 1px dashed #cbd5e1;
+      border-radius: 12px;
+      padding: 10px;
+      background: var(--surface-2);
+    }
+
+    .photo-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 6px;
+    }
+
+    .photo-preview {
+      margin-top: 8px;
+      max-height: 140px;
+      border-radius: 8px;
+      display: none;
+      object-fit: contain;
+      background: #fff;
+      border: 1px solid var(--border);
+    }
+
+    .photo-preview.show { display: block; }
+
+    .lightbox img {
+      max-width: 94vw;
+      max-height: 88vh;
+      border-radius: 12px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 18px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--text);
+      color: #fff;
+      padding: 9px 16px;
+      border-radius: 999px;
+      font-size: 0.84rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: 0.2s ease;
+      z-index: 80;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <h1>Sổ Tay Chữa Lỗi Toán & Lý</h1>
+        <p>Vào môn → chọn thư mục → làm lại ra giấy → xác nhận là xóa vĩnh viễn</p>
+      </div>
+      <div class="actions-row">
+        <button class="btn btn-primary" id="btnOpenAdd">+ Thêm câu sai</button>
+        <button class="btn" id="btnExport">Xuất JSON</button>
+        <button class="btn" id="btnImport">Nhập JSON</button>
+        <input type="file" id="importFile" accept="application/json" hidden />
+      </div>
+    </header>
+
+    <div class="status-strip">
+      <span id="storageStatus">Đang kiểm tra bộ nhớ...</span>
+      <span id="totalUnresolvedText">Chưa xử lý: 0 câu</span>
+    </div>
+
+    <div class="nav-bar">
+      <div class="breadcrumb" id="breadcrumb"></div>
+      <button class="btn" id="btnBack" style="display:none;">← Quay lại</button>
+    </div>
+
+    <!-- Màn 1: Chọn môn -->
+    <section id="viewSubjects" class="subjects-grid"></section>
+
+    <!-- Màn 2: Thư mục của môn -->
+    <section id="viewFolders" style="display:none;">
+      <div class="panel">
+        <div class="folder-create">
+          <input type="text" id="newFolderName" class="input" placeholder="Tên thư mục mới (vd: Hàm số, Dao động, Đề kiểm tra...)" maxlength="60" />
+          <button class="btn btn-primary" id="btnCreateFolder">+ Tạo thư mục</button>
+        </div>
+        <div class="folders-grid" id="foldersList"></div>
+      </div>
+    </section>
+
+    <!-- Màn 3: Câu hỏi trong thư mục -->
+    <section id="viewQuestions" style="display:none;">
+      <div class="filter-bar">
+        <input type="search" id="searchInput" class="input" placeholder="Tìm tên câu, lỗi sai, tóm tắt..." />
+        <select id="typeFilter" class="select">
+          <option value="all">Tất cả dạng câu</option>
+          <option value="Trắc nghiệm">Trắc nghiệm</option>
+          <option value="Tự luận">Tự luận</option>
+          <option value="Trả lời ngắn">Trả lời ngắn</option>
+          <option value="Đúng sai">Đúng sai</option>
+        </select>
+      </div>
+      <div id="questionsList"></div>
+    </section>
+  </div>
+
+  <!-- Modal Thêm câu sai -->
+  <div class="modal-backdrop" id="addModal">
+    <div class="modal">
+      <div class="modal-head">
+        <h2>Thêm câu làm sai</h2>
+        <button class="btn" id="btnCloseModal">✕</button>
+      </div>
+      <form id="questionForm" class="form-grid">
+        <div class="form-row-2">
+          <div class="field">
+            <label for="qSubject">Môn học</label>
+            <select id="qSubject" class="select" required>
+              <option value="Toán">Môn Toán</option>
+              <option value="Lý">Môn Lý</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="qFolder">Thư mục</label>
+            <select id="qFolder" class="select" required></select>
+          </div>
+        </div>
+
+        <div class="form-row-2">
+          <div class="field">
+            <label for="qTitle">Tên câu hỏi (tùy chọn)</label>
+            <input type="text" id="qTitle" class="input" placeholder="Vd: Câu 14 mã 102, Bài 3..." maxlength="80" />
+          </div>
+          <div class="field">
+            <label for="qType">Dạng câu</label>
+            <select id="qType" class="select">
+              <option value="Trắc nghiệm">Trắc nghiệm</option>
+              <option value="Tự luận">Tự luận</option>
+              <option value="Trả lời ngắn">Trả lời ngắn</option>
+              <option value="Đúng sai">Đúng sai</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="qReason">Nguyên nhân sai</label>
+          <textarea id="qReason" class="textarea" rows="2" placeholder="Vd: Quên điều kiện, nhầm dấu, đổi sai đơn vị..."></textarea>
+        </div>
+
+        <div class="field">
+          <label for="qSummary">Tóm tắt bước giải đúng</label>
+          <textarea id="qSummary" class="textarea" rows="2" placeholder="Ghi ngắn gọn hướng làm hoặc công thức cốt lõi..."></textarea>
+        </div>
+
+        <div class="form-row-2">
+          <div class="photo-box">
+            <label>Ảnh đề bài (không bắt buộc)</label>
+            <div class="photo-actions">
+              <button type="button" class="btn" data-pick="imgProblem" data-mode="camera">Chụp ảnh</button>
+              <button type="button" class="btn" data-pick="imgProblem" data-mode="gallery">Chọn ảnh</button>
+              <button type="button" class="btn btn-danger" id="clearProblem" style="display:none;">Xóa</button>
+            </div>
+            <input type="file" id="imgProblem" accept="image/*" hidden />
+            <img id="previewProblem" class="photo-preview" alt="Xem trước đề bài" />
+          </div>
+
+          <div class="photo-box">
+            <label>Ảnh bài giải sai (không bắt buộc)</label>
+            <div class="photo-actions">
+              <button type="button" class="btn" data-pick="imgWrong" data-mode="camera">Chụp ảnh</button>
+              <button type="button" class="btn" data-pick="imgWrong" data-mode="gallery">Chọn ảnh</button>
+              <button type="button" class="btn btn-danger" id="clearWrong" style="display:none;">Xóa</button>
+            </div>
+            <input type="file" id="imgWrong" accept="image/*" hidden />
+            <img id="previewWrong" class="photo-preview" alt="Xem trước bài giải sai" />
+          </div>
+        </div>
+
+        <div class="actions-row" style="justify-content:flex-end; margin-top:6px;">
+          <button type="button" class="btn" id="btnCancelModal">Hủy</button>
+          <button type="submit" class="btn btn-primary" id="btnSaveQuestion">Lưu câu sai</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Lightbox xem ảnh -->
+  <div class="modal-backdrop lightbox" id="lightbox">
+    <img id="lightboxImg" src="" alt="Ảnh phóng to" />
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const DB_NAME = "MathPhysicsErrorLogV2";
+    const DB_VERSION = 1;
+    const DEFAULT_FOLDER = "Mặc định";
+
+    const state = {
+      db: null,
+      folders: [],     // { id, subject, name }
+      questions: [],   // { id, subject, folderId, title, type, reason, summary, problemImg, wrongImg, createdAt }
+      currentSubject: null, // "Toán" | "Lý" | null
+      currentFolderId: null,
+      search: "",
+      typeFilter: "all",
+      draftProblemImg: null,
+      draftWrongImg: null
+    };
+
+    const $ = (id) => document.getElementById(id);
+
+    function showToast(msg) {
+      const t = $("toast");
+      t.textContent = msg;
+      t.classList.add("show");
+      clearTimeout(showToast._timer);
+      showToast._timer = setTimeout(() => t.classList.remove("show"), 2200);
+    }
+
+    function openDB() {
+      return new Promise((resolve, reject) => {
+        const req = indexedDB.open(DB_NAME, DB_VERSION);
+        req.onupgradeneeded = (e) => {
+          const db = e.target.result;
+          if (!db.objectStoreNames.contains("folders")) {
+            const fs = db.createObjectStore("folders", { keyPath: "id" });
+            fs.createIndex("subject", "subject", { unique: false });
+          }
+          if (!db.objectStoreNames.contains("questions")) {
+            const qs = db.createObjectStore("questions", { keyPath: "id" });
+            qs.createIndex("subject", "subject", { unique: false });
+            qs.createIndex("folderId", "folderId", { unique: false });
+          }
+        };
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    function getAllFromStore(storeName) {
+      return new Promise((resolve, reject) => {
+        const tx = state.db.transaction(storeName, "readonly");
+        const req = tx.objectStore(storeName).getAll();
+        req.onsuccess = () => resolve(req.result || []);
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    function putToStore(storeName, item) {
+      return new Promise((resolve, reject) => {
+        const tx = state.db.transaction(storeName, "readwrite");
+        const req = tx.objectStore(storeName).put(item);
+        req.onsuccess = () => resolve(item);
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    function deleteFromStore(storeName, id) {
+      return new Promise((resolve, reject) => {
+        const tx = state.db.transaction(storeName, "readwrite");
+        const req = tx.objectStore(storeName).delete(id);
+        req.onsuccess = () => resolve();
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    async function ensureDefaultFolders() {
+      for (const subj of ["Toán", "Lý"]) {
+        const exists = state.folders.some((f) => f.subject === subj && f.name === DEFAULT_FOLDER);
+        if (!exists) {
+          const folder = {
+            id: "fld_" + subj + "_" + Date.now() + "_" + Math.random().toString(36).slice(2, 6),
+            subject: subj,
+            name: DEFAULT_FOLDER
+          };
+          await putToStore("folders", folder);
+          state.folders.push(folder);
+        }
+      }
+    }
+
+    // Nén ảnh nhanh gọn để lưu nhẹ và mở mượt
+    async function compressImageFast(file, maxWidth = 1080, quality = 0.72) {
+      let source;
+      let width, height;
+
+      if (typeof createImageBitmap === "function") {
+        source = await createImageBitmap(file);
+        width = source.width;
+        height = source.height;
+      } else {
+        const dataUrl = await new Promise((res, rej) => {
+          const r = new FileReader();
+          r.onload = () => res(r.result);
+          r.onerror = rej;
+          r.readAsDataURL(file);
+        });
+        source = await new Promise((res, rej) => {
+          const img = new Image();
+          img.onload = () => res(img);
+          img.onerror = rej;
+          img.src = dataUrl;
+        });
+        width = source.naturalWidth;
+        height = source.naturalHeight;
+      }
+
+      if (width > maxWidth) {
+        height = Math.round((height * maxWidth) / width);
+        width = maxWidth;
+      }
+
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(source, 0, 0, width, height);
+      if (source && typeof source.close === "function") source.close();
+
+      return canvas.toDataURL("image/jpeg", quality);
+    }
+
+    function getSubjectStats(subject) {
+      const unresolved = state.questions.filter((q) => q.subject === subject).length;
+      // Vì câu đã làm lại được xóa vĩnh viễn, tiến độ hiện tỷ lệ câu còn tồn đọng chưa xử lý
+      // và hiển thị thêm tổng số câu đang chờ làm lại
+      return { unresolved };
+    }
+
+    function renderAll() {
+      renderTopStats();
+      renderBreadcrumb();
+      renderViews();
+    }
+
+    function renderTopStats() {
+      const mathCount = getSubjectStats("Toán").unresolved;
+      const physCount = getSubjectStats("Lý").unresolved;
+      const total = mathCount + physCount;
+      $("totalUnresolvedText").textContent = `Chưa xử lý: ${total} câu (Toán ${mathCount} • Lý ${physCount})`;
+    }
+
+    function renderBreadcrumb() {
+      const bc = $("breadcrumb");
+      const backBtn = $("btnBack");
+      bc.innerHTML = "";
+
+      const rootBtn = document.createElement("button");
+      rootBtn.className = state.currentSubject ? "crumb-link" : "crumb-current";
+      rootBtn.textContent = "Các môn";
+      rootBtn.onclick = () => {
+        state.currentSubject = null;
+        state.currentFolderId = null;
+        renderAll();
+      };
+      bc.appendChild(rootBtn);
+
+      if (state.currentSubject) {
+        const sep = document.createElement("span");
+        sep.textContent = "/";
+        sep.style.color = "var(--muted)";
+        bc.appendChild(sep);
+
+        const subjEl = document.createElement(state.currentFolderId ? "button" : "span");
+        subjEl.className = state.currentFolderId ? "crumb-link" : "crumb-current";
+        subjEl.textContent = "Môn " + state.currentSubject;
+        if (state.currentFolderId) {
+          subjEl.onclick = () => {
+            state.currentFolderId = null;
+            renderAll();
+          };
+        }
+        bc.appendChild(subjEl);
+      }
+
+      if (state.currentFolderId) {
+        const folder = state.folders.find((f) => f.id === state.currentFolderId);
+        const sep = document.createElement("span");
+        sep.textContent = "/";
+        sep.style.color = "var(--muted)";
+        bc.appendChild(sep);
+
+        const fldEl = document.createElement("span");
+        fldEl.className = "crumb-current";
+        fldEl.textContent = folder ? folder.name : "Thư mục";
+        bc.appendChild(fldEl);
+      }
+
+      if (state.currentFolderId) {
+        backBtn.style.display = "inline-flex";
+        backBtn.textContent = "← Thư mục";
+        backBtn.onclick = () => {
+          state.currentFolderId = null;
+          renderAll();
+        };
+      } else if (state.currentSubject) {
+        backBtn.style.display = "inline-flex";
+        backBtn.textContent = "← Các môn";
+        backBtn.onclick = () => {
+          state.currentSubject = null;
+          renderAll();
+        };
+      } else {
+        backBtn.style.display = "none";
+      }
+    }
+
+    function renderViews() {
+      const showSubjects = !state.currentSubject;
+      const showFolders = Boolean(state.currentSubject && !state.currentFolderId);
+      const showQuestions = Boolean(state.currentSubject && state.currentFolderId);
+
+      $("viewSubjects").style.display = showSubjects ? "grid" : "none";
+      $("viewFolders").style.display = showFolders ? "block" : "none";
+      $("viewQuestions").style.display = showQuestions ? "block" : "none";
+
+      if (showSubjects) renderSubjects();
+      if (showFolders) renderFolders();
+      if (showQuestions) renderQuestions();
+    }
+
+    function renderSubjects() {
+      const wrap = $("viewSubjects");
+      wrap.innerHTML = "";
+
+      const configs = [
+        { subject: "Toán", cls: "math", symbol: "∑", desc: "Bấm để mở thư mục môn Toán" },
+        { subject: "Lý", cls: "physics", symbol: "⚡", desc: "Bấm để mở thư mục môn Lý" }
+      ];
+
+      const maxUnresolved = Math.max(
+        1,
+        getSubjectStats("Toán").unresolved,
+        getSubjectStats("Lý").unresolved
+      );
+
+      configs.forEach((c) => {
+        const count = getSubjectStats(c.subject).unresolved;
+        const folderCount = state.folders.filter((f) => f.subject === c.subject).length;
+        const barPct = count === 0 ? 0 : Math.max(12, Math.round((count / maxUnresolved) * 100));
+
+        const card = document.createElement("button");
+        card.type = "button";
+        card.className = `subject-card ${c.cls}`;
+        card.innerHTML = `
+          <div class="subject-top">
+            <h2 class="subject-title">${c.symbol} Môn ${c.subject}</h2>
+            <span class="badge">${count} chưa xử lý</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill" style="width:${barPct}%"></div>
+          </div>
+          <div class="subject-meta">
+            <span>${folderCount} thư mục</span>
+            <span>${c.desc} →</span>
+          </div>
+        `;
+        card.onclick = () => {
+          state.currentSubject = c.subject;
+          state.currentFolderId = null;
+          renderAll();
+        };
+        wrap.appendChild(card);
+      });
+    }
+
+    function renderFolders() {
+      const list = $("foldersList");
+      list.innerHTML = "";
+      const subjFolders = state.folders.filter((f) => f.subject === state.currentSubject);
+
+      subjFolders.forEach((f) => {
+        const qCount = state.questions.filter((q) => q.folderId === f.id).length;
+        const item = document.createElement("div");
+        item.className = "folder-card";
+
+        const openBtn = document.createElement("button");
+        openBtn.type = "button";
+        openBtn.className = "folder-open";
+        openBtn.innerHTML = `
+          <span class="folder-name">📁 ${escapeHtml(f.name)}</span>
+          <span class="folder-count">${qCount} câu chưa xử lý</span>
+        `;
+        openBtn.onclick = () => {
+          state.currentFolderId = f.id;
+          renderAll();
+        };
+
+        item.appendChild(openBtn);
+
+        if (f.name !== DEFAULT_FOLDER) {
+          const delBtn = document.createElement("button");
+          delBtn.type = "button";
+          delBtn.className = "btn btn-danger";
+          delBtn.textContent = "Xóa";
+          delBtn.onclick = async (e) => {
+            e.stopPropagation();
+            const hasQ = state.questions.some((q) => q.folderId === f.id);
+            if (hasQ && !confirm(`Thư mục "${f.name}" còn câu hỏi. Xóa thư mục sẽ xóa luôn các câu bên trong, chắc chắn chứ?`)) {
+              return;
+            }
+            const toDelete = state.questions.filter((q) => q.folderId === f.id);
+            for (const q of toDelete) {
+              await deleteFromStore("questions", q.id);
+            }
+            state.questions = state.questions.filter((q) => q.folderId !== f.id);
+            await deleteFromStore("folders", f.id);
+            state.folders = state.folders.filter((x) => x.id !== f.id);
+            showToast("Đã xóa thư mục");
+            renderAll();
+          };
+          item.appendChild(delBtn);
+        }
+
+        list.appendChild(item);
+      });
+    }
+
+    function renderQuestions() {
+      const wrap = $("questionsList");
+      wrap.innerHTML = "";
+
+      const kw = state.search.trim().toLowerCase();
+      const filtered = state.questions.filter((q) => {
+        if (q.folderId !== state.currentFolderId) return false;
+        if (state.typeFilter !== "all" && q.type !== state.typeFilter) return false;
+        if (!kw) return true;
+        const hay = `${q.title || ""} ${q.type || ""} ${q.reason || ""} ${q.summary || ""}`.toLowerCase();
+        return hay.includes(kw);
+      });
+
+      if (!filtered.length) {
+        wrap.innerHTML = `
+          <div class="empty">
+            Thư mục này chưa có câu chưa xử lý nào. Bấm <strong>+ Thêm câu sai</strong> để thêm mới.
+          </div>
+        `;
+        return;
+      }
+
+      filtered.forEach((q) => {
+        const card = document.createElement("article");
+        card.className = "question-card";
+
+        let imgsHtml = "";
+        const imgs = [];
+        if (q.problemImg) imgs.push({ label: "Đề bài", src: q.problemImg });
+        if (q.wrongImg) imgs.push({ label: "Bài giải làm sai", src: q.wrongImg });
+
+        if (imgs.length) {
+          imgsHtml = `<div class="q-images">` + imgs.map((im) => `
+            <div class="thumb-box">
+              <img src="${im.src}" alt="${im.label}" data-zoom="1" />
+              <div class="thumb-cap">${im.label}</div>
+            </div>
+          `).join("") + `</div>`;
+        }
+
+        card.innerHTML = `
+          <div class="q-head">
+            <h3 class="q-title">${escapeHtml(q.title || "Câu chưa đặt tên")}</h3>
+            <span class="q-type">${escapeHtml(q.type || "Trắc nghiệm")}</span>
+          </div>
+          ${q.reason ? `<p class="q-note"><span class="q-label">Nguyên nhân sai:</span> ${escapeHtml(q.reason)}</p>` : ""}
+          ${q.summary ? `<p class="q-note"><span class="q-label">Tóm tắt bước giải:</span> ${escapeHtml(q.summary)}</p>` : ""}
+          ${imgsHtml}
+          <div class="q-foot">
+            <span style="font-size:0.78rem; color:var(--muted);">Đã làm lại ra giấy xong? Xác nhận sẽ xóa hẳn câu này.</span>
+            <button type="button" class="btn btn-done" data-confirm-done="${q.id}">✓ Đã làm lại ra giấy (Xóa vĩnh viễn)</button>
+          </div>
+        `;
+
+        card.querySelectorAll("img[data-zoom]").forEach((imgEl) => {
+          imgEl.onclick = () => {
+            $("lightboxImg").src = imgEl.src;
+            $("lightbox").classList.add("open");
+          };
+        });
+
+        card.querySelector(`[data-confirm-done="${q.id}"]`).onclick = async () => {
+          await deleteFromStore("questions", q.id);
+          state.questions = state.questions.filter((item) => item.id !== q.id);
+          showToast("Đã xác nhận và xóa vĩnh viễn câu hỏi");
+          renderAll();
+        };
+
+        wrap.appendChild(card);
+      });
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, "&")
+        .replace(/</g, "<")
+        .replace(/>/g, ">")
+        .replace(/"/g, """);
+    }
+
+    function populateFolderSelect(subject, preferredFolderId = null) {
+      const sel = $("qFolder");
+      const list = state.folders.filter((f) => f.subject === subject);
+      sel.innerHTML = "";
+      list.forEach((f) => {
+        const opt = document.createElement("option");
+        opt.value = f.id;
+        opt.textContent = f.name;
+        sel.appendChild(opt);
+      });
+      if (preferredFolderId && list.some((f) => f.id === preferredFolderId)) {
+        sel.value = preferredFolderId;
+      }
+    }
+
+    function resetFormImages() {
+      state.draftProblemImg = null;
+      state.draftWrongImg = null;
+      $("imgProblem").value = "";
+      $("imgWrong").value = "";
+      $("previewProblem").src = "";
+      $("previewWrong").src = "";
+      $("previewProblem").classList.remove("show");
+      $("previewWrong").classList.remove("show");
+      $("clearProblem").style.display = "none";
+      $("clearWrong").style.display = "none";
+    }
+
+    function openAddModal() {
+      const subj = state.currentSubject || "Toán";
+      $("qSubject").value = subj;
+      populateFolderSelect(subj, state.currentFolderId);
+      $("qTitle").value = "";
+      $("qType").value = "Trắc nghiệm";
+      $("qReason").value = "";
+      $("qSummary").value = "";
+      resetFormImages();
+      $("addModal").classList.add("open");
+    }
+
+    function closeAddModal() {
+      $("addModal").classList.remove("open");
+    }
+
+    // Bind events
+    $("btnOpenAdd").onclick = openAddModal;
+    $("btnCloseModal").onclick = closeAddModal;
+    $("btnCancelModal").onclick = closeAddModal;
+    $("addModal").onclick = (e) => {
+      if (e.target === $("addModal")) closeAddModal();
+    };
+    $("lightbox").onclick = () => $("lightbox").classList.remove("open");
+
+    $("qSubject").onchange = () => populateFolderSelect($("qSubject").value);
+
+    document.querySelectorAll("[data-pick]").forEach((btn) => {
+      btn.onclick = () => {
+        const inputId = btn.getAttribute("data-pick");
+        const mode = btn.getAttribute("data-mode");
+        const inp = $(inputId);
+        if (mode === "camera") {
+          inp.setAttribute("capture", "environment");
+        } else {
+          inp.removeAttribute("capture");
+        }
+        inp.click();
+      };
+    });
+
+    async function handlePhotoInput(inputEl, targetKey, previewId, clearBtnId) {
+      const file = inputEl.files && inputEl.files[0];
+      if (!file) return;
+      const btnSave = $("btnSaveQuestion");
+      btnSave.disabled = true;
+      btnSave.textContent = "Đang xử lý ảnh...";
+      try {
+        const compressed = await compressImageFast(file);
+        state[targetKey] = compressed;
+        $(previewId).src = compressed;
+        $(previewId).classList.add("show");
+        $(clearBtnId).style.display = "inline-flex";
+      } catch (err) {
+        showToast("Không đọc được ảnh này");
+      } finally {
+        btnSave.disabled = false;
+        btnSave.textContent = "Lưu câu sai";
+      }
+    }
+
+    $("imgProblem").onchange = () =>
+      handlePhotoInput($("imgProblem"), "draftProblemImg", "previewProblem", "clearProblem");
+    $("imgWrong").onchange = () =>
+      handlePhotoInput($("imgWrong"), "draftWrongImg", "previewWrong", "clearWrong");
+
+    $("clearProblem").onclick = () => {
+      state.draftProblemImg = null;
+      $("imgProblem").value = "";
+      $("previewProblem").src = "";
+      $("previewProblem").classList.remove("show");
+      $("clearProblem").style.display = "none";
+    };
+
+    $("clearWrong").onclick = () => {
+      state.draftWrongImg = null;
+      $("imgWrong").value = "";
+      $("previewWrong").src = "";
+      $("previewWrong").classList.remove("show");
+      $("clearWrong").style.display = "none";
+    };
+
+    $("questionForm").onsubmit = async (e) => {
+      e.preventDefault();
+      const subject = $("qSubject").value;
+      const folderId = $("qFolder").value;
+      const title = $("qTitle").value.trim();
+      const type = $("qType").value;
+      const reason = $("qReason").value.trim();
+      const summary = $("qSummary").value.trim();
+
+      if (!title && !reason && !summary && !state.draftProblemImg && !state.draftWrongImg) {
+        showToast("Nhập ít nhất 1 thông tin hoặc ảnh trước khi lưu nhé");
+        return;
+      }
+
+      const item = {
+        id: "q_" + Date.now() + "_" + Math.random().toString(36).slice(2, 7),
+        subject,
+        folderId,
+        title,
+        type,
+        reason,
+        summary,
+        problemImg: state.draftProblemImg || null,
+        wrongImg: state.draftWrongImg || null,
+        createdAt: Date.now()
+      };
+
+      await putToStore("questions", item);
+      state.questions.unshift(item);
+      state.currentSubject = subject;
+      state.currentFolderId = folderId;
+      closeAddModal();
+      showToast("Đã lưu câu sai");
+      renderAll();
+    };
+
+    $("btnCreateFolder").onclick = async () => {
+      const name = $("newFolderName").value.trim();
+      if (!name || !state.currentSubject) return;
+      const exists = state.folders.some(
+        (f) => f.subject === state.currentSubject && f.name.toLowerCase() === name.toLowerCase()
+      );
+      if (exists) {
+        showToast("Thư mục này đã tồn tại");
+        return;
+      }
+      const folder = {
+        id: "fld_" + Date.now() + "_" + Math.random().toString(36).slice(2, 6),
+        subject: state.currentSubject,
+        name
+      };
+      await putToStore("folders", folder);
+      state.folders.push(folder);
+      $("newFolderName").value = "";
+      showToast("Đã tạo thư mục");
+      renderAll();
+    };
+
+    $("newFolderName").onkeydown = (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        $("btnCreateFolder").click();
+      }
+    };
+
+    $("searchInput").oninput = (e) => {
+      state.search = e.target.value;
+      renderQuestions();
+    };
+
+    $("typeFilter").onchange = (e) => {
+      state.typeFilter = e.target.value;
+      renderQuestions();
+    };
+
+    $("btnExport").onclick = () => {
+      const payload = {
+        exportedAt: new Date().toISOString(),
+        folders: state.folders,
+        questions: state.questions
+      };
+      const blob = new Blob([JSON.stringify(payload)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `so-tay-loi-toan-ly-${new Date().toISOString().slice(0, 10)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast("Đã xuất file JSON");
+    };
+
+    $("btnImport").onclick = () => $("importFile").click();
+
+    $("importFile").onchange = async (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+      try {
+        const text = await file.text();
+        const data = JSON.parse(text);
+        if (Array.isArray(data.folders)) {
+          for (const f of data.folders) {
+            if (!f.id || !f.subject || !f.name) continue;
+            await putToStore("folders", f);
+            if (!state.folders.some((x) => x.id === f.id)) state.folders.push(f);
+          }
+        }
+        if (Array.isArray(data.questions)) {
+          for (const q of data.questions) {
+            if (!q.id || !q.subject) continue;
+            await putToStore("questions", q);
+            if (!state.questions.some((x) => x.id === q.id)) state.questions.unshift(q);
+          }
+        }
+        await ensureDefaultFolders();
+        showToast("Đã nhập dữ liệu JSON");
+        renderAll();
+      } catch {
+        showToast("File JSON không hợp lệ");
+      } finally {
+        e.target.value = "";
+      }
+    };
+
+    (async function init() {
+      try {
+        state.db = await openDB();
+        state.folders = await getAllFromStore("folders");
+        state.questions = (await getAllFromStore("questions")).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+        await ensureDefaultFolders();
+        $("storageStatus").textContent = "Bộ nhớ cục bộ trình duyệt: Sẵn sàng";
+        renderAll();
+      } catch (err) {
+        $("storageStatus").textContent = "Trình duyệt đang chặn lưu trữ cục bộ";
+        renderAll();
+      }
+    })();
+  </script>
+</body>
+</html>
